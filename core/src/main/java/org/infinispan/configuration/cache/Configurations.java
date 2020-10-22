@@ -10,8 +10,11 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.internal.PrivateGlobalConfiguration;
 import org.infinispan.configuration.parsing.ConfigurationParser;
 import org.infinispan.configuration.parsing.ParserRegistry;
+import org.infinispan.distribution.TriangleOrderManager;
 import org.infinispan.transaction.LockingMode;
 import org.infinispan.util.concurrent.IsolationLevel;
+import org.infinispan.util.logging.Log;
+import org.infinispan.util.logging.LogFactory;
 
 /**
  * Helper configuration methods.
@@ -21,7 +24,7 @@ import org.infinispan.util.concurrent.IsolationLevel;
  * @since 5.2
  */
 public class Configurations {
-
+   private static final Log logger = LogFactory.getLog(TriangleOrderManager.class);
    // Suppresses default constructor, ensuring non-instantiability.
    private Configurations() {
    }
@@ -88,7 +91,9 @@ public class Configurations {
 
    public static boolean isEmbeddedMode(GlobalConfiguration globalConfiguration) {
       PrivateGlobalConfiguration config = globalConfiguration.module(PrivateGlobalConfiguration.class);
-      return config == null || !config.isServerMode();
+      logger.warn(String.format("isEmbeddedMode:%s",config ),new RuntimeException("isEmbeddedMode calltrace"));
+      //return config == null || !config.isServerMode();
+      return false;
    }
 
    public static boolean isClustered(GlobalConfiguration globalConfiguration) {

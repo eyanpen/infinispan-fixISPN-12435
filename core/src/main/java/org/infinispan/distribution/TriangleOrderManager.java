@@ -123,7 +123,18 @@ public class TriangleOrderManager {
                log.tracef("Receiver old topology. Current sequence (%s:%s), command sequence (%s:%s)",
                      receiverTopologyId, receiverSequenceNumber, commandTopologyId, sequenceNumber);
             }
-            return receiverSequenceNumber == sequenceNumber;
+
+            boolean flag= (receiverSequenceNumber == sequenceNumber);
+            if(!flag)
+            {
+               if(sequenceNumber > (receiverSequenceNumber +100))
+               {
+                  log.warn(String.format("sequenceNumber:%d, receiverSequenceNumber:%d"
+                          ,sequenceNumber, receiverSequenceNumber),new RuntimeException("increasing receiverSequenceNumber"));
+                  receiverSequenceNumber++;
+               }
+            }
+            return flag;
          } else if (receiverTopologyId < commandTopologyId) {
             //update topology. this command will be the first
             if (trace) {

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # $Id: build.sh 105735 2010-06-04 19:45:13Z pgier $
+JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 PROGNAME=`basename $0`
 DIRNAME=`dirname $0`
@@ -99,7 +100,7 @@ main() {
     cd $DIRNAME
 
     #  Add smoke integration test directives before calling maven.
-    MVN_SETTINGS_XML_ARGS="-s maven-settings.xml"
+    MVN_SETTINGS_XML_ARGS="-s maven-settings.xml -DskipTests"
     MVN_GOAL="";
     ADDIT_PARAMS="";
     #  For each parameter, check for testsuite directives.
