@@ -45,6 +45,8 @@ import org.infinispan.configuration.serializing.ConfigurationHolder;
 import org.infinispan.configuration.serializing.Serializer;
 import org.infinispan.configuration.serializing.XMLExtendedStreamWriter;
 import org.infinispan.configuration.serializing.XMLExtendedStreamWriterImpl;
+import org.infinispan.util.logging.Log;
+import org.infinispan.util.logging.LogFactory;
 
 /**
  * ParserRegistry is a namespace-mapping-aware meta-parser which provides a way to delegate the
@@ -61,7 +63,7 @@ public class ParserRegistry implements NamespaceMappingParser {
    private final WeakReference<ClassLoader> cl;
    private final ConcurrentMap<QName, NamespaceParserPair> parserMappings;
    private final Properties properties;
-
+   private static final Log logger = LogFactory.getLog(ParserRegistry.class);
    public ParserRegistry() {
       this(Thread.currentThread().getContextClassLoader());
    }
@@ -81,7 +83,7 @@ public class ParserRegistry implements NamespaceMappingParser {
          if (namespaces == null) {
             throw CONFIG.parserDoesNotDeclareNamespaces(parser.getClass().getName());
          }
-
+         //logger.warnf(new RuntimeException("Who call it?"),"ConfigurationParser:%s,namespaces:%s",parser,namespaces);
          boolean skipParser = defaultOnly;
 
          if (skipParser) {
@@ -95,6 +97,7 @@ public class ParserRegistry implements NamespaceMappingParser {
          if (!skipParser) {
             for (Namespace ns : namespaces) {
                QName qName = new QName(ns.uri(), ns.root());
+               logger.warnf("ConfigurationParser:%s,qName:%s",parser,qName);
                NamespaceParserPair existing = parserMappings.putIfAbsent(qName, new NamespaceParserPair(ns, parser));
                if (existing != null && !parser.getClass().equals(existing.parser.getClass())) {
                   CONFIG.parserRootElementAlreadyRegistered(qName, parser.getClass().getName(), existing.parser.getClass().getName());

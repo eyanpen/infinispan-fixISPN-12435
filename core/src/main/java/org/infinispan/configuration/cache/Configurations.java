@@ -91,9 +91,10 @@ public class Configurations {
 
    public static boolean isEmbeddedMode(GlobalConfiguration globalConfiguration) {
       PrivateGlobalConfiguration config = globalConfiguration.module(PrivateGlobalConfiguration.class);
-      logger.warn(String.format("isEmbeddedMode:%s",config ),new RuntimeException("isEmbeddedMode calltrace"));
-      //return config == null || !config.isServerMode();
-      return false;
+      //logger.warn(String.format("isEmbeddedMode:%s",config ),new RuntimeException("isEmbeddedMode calltrace"));
+      boolean flag=( config == null || !config.isServerMode());
+      logger.info(String.format("isEmbeddedMode:%b,%s",flag,config ));
+      return flag;
    }
 
    public static boolean isClustered(GlobalConfiguration globalConfiguration) {
