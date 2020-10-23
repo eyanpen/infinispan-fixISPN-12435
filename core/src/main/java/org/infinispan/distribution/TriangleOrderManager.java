@@ -116,25 +116,39 @@ public class TriangleOrderManager {
             }
          }
       }
-
+      private long lastIncrease=0;
       private synchronized boolean isNext(int commandTopologyId, long sequenceNumber) {
          if (receiverTopologyId == commandTopologyId) {
             if (trace) {
                log.tracef("Receiver old topology. Current sequence (%s:%s), command sequence (%s:%s)",
                      receiverTopologyId, receiverSequenceNumber, commandTopologyId, sequenceNumber);
             }
+///////////////////////Start https://issues.redhat.com/browse/ISPN-12435
 
-            boolean flag= (receiverSequenceNumber == sequenceNumber);
-            if(!flag)
+            if(receiverSequenceNumber == sequenceNumber)
             {
-               if(sequenceNumber > (receiverSequenceNumber +100))
-               {
-                  log.warn(String.format("sequenceNumber:%d, receiverSequenceNumber:%d"
-                          ,sequenceNumber, receiverSequenceNumber),new RuntimeException("increasing receiverSequenceNumber"));
+               return true;
+            }
+
+            if(sequenceNumber > (receiverSequenceNumber +100000))
+            {
+               long now=System.currentTimeMillis();
+               //Waiting 10 seconds to increase receiverSequenceNumber again
+               // if mulitple commands are lost in current system.
+               if((now - lastIncrease)>(10*1000)) {
+                  log.warn(String.format("https://issues.redhat.com/browse/ISPN-12435 " +
+                                  "Something happens in sender side. Try to skip the lost Command." +
+                                  " The lastIncrease:%d,now:%d,sequenceNumber:%d, receiverSequenceNumber:%d"
+                                       , lastIncrease,now, sequenceNumber, receiverSequenceNumber)
+                          , new RuntimeException("increasing receiverSequenceNumber"));
+
+                  lastIncrease=now;
                   receiverSequenceNumber++;
                }
             }
-            return flag;
+            return false;
+////////////////////////End https://issues.redhat.com/browse/ISPN-12435
+
          } else if (receiverTopologyId < commandTopologyId) {
             //update topology. this command will be the first
             if (trace) {
